@@ -1,55 +1,46 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-// import { useRouter } from "next/navigation"
-import { Link } from "@inertiajs/react"
-import { useAuth } from "@/context/auth-context"
-import { Mail, Lock, User, Loader2 } from "lucide-react"
+import { useState } from "react";
+import { Link, router } from "@inertiajs/react";
+import { Mail, Lock, User, Loader2 } from "lucide-react";
+import { register } from "@/libs/apis";
 
 export default function RegisterForm() {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [role, setRole] = useState("user")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  // const router = useRouter()
-  const { register } = 'useAuth()'
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
       if (!name || !email || !password) {
-        setError("Please fill in all fields")
-        return
+        setError("Please fill in all fields");
+        setLoading(false);
+        return;
       }
 
-      const userData = {
-        id: Math.random().toString(36).substr(2, 9),
+      const payload = {
         name,
         email,
-        role,
-        createdAt: new Date().toISOString(),
-      }
+        password,
+      };
 
-      register(userData)
+      await register(payload);
 
-      if (role === "organizer") {
-        router.push("/organizer/dashboard")
-      } else if (role === "admin") {
-        router.push("/admin/dashboard")
-      } else {
-        router.push("/user/dashboard")
-      }
+      // 🔥 Redirect to onboarding page
+      router.visit("/onboarding");
+
     } catch (err) {
-      setError("Registration failed. Please try again.")
+      setError("Registration failed. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-md">
@@ -58,10 +49,13 @@ export default function RegisterForm() {
         <p className="text-slate-400 mb-6">Join HostMyShow today</p>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+            {error}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Name */}
           <div>
             <label className="block text-sm font-medium mb-2">Full Name</label>
             <div className="relative">
@@ -76,6 +70,7 @@ export default function RegisterForm() {
             </div>
           </div>
 
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-2">Email</label>
             <div className="relative">
@@ -90,6 +85,7 @@ export default function RegisterForm() {
             </div>
           </div>
 
+          {/* Password */}
           <div>
             <label className="block text-sm font-medium mb-2">Password</label>
             <div className="relative">
@@ -104,19 +100,7 @@ export default function RegisterForm() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Account Type</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-accent transition"
-            >
-              <option value="user">User (Book Events)</option>
-              <option value="organizer">Organizer (Host Events)</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-
+          {/* Submit button */}
           <button
             type="submit"
             disabled={loading}
@@ -141,5 +125,5 @@ export default function RegisterForm() {
         </p>
       </div>
     </div>
-  )
+  );
 }

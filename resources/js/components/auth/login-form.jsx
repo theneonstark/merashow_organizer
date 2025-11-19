@@ -1,56 +1,81 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Link, router } from "@inertiajs/react"
-import { Mail, Lock, Loader2 } from "lucide-react"
+import { useState } from "react";
+import { Link, router } from "@inertiajs/react";
+import { Mail, Lock, Loader2 } from "lucide-react";
+import { Login } from "@/libs/apis"; // your API
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  // const router = useRouter()
-  const { login } = 'useAuth()'
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
       if (!email || !password) {
-        setError("Please fill in all fields")
-        return
+        setError("Please fill in all fields");
+        return;
       }
 
-      const userData = {
-        id: Math.random().toString(36).substr(2, 9),
+      const response = await Login({
         email,
-        name: email.split("@")[0],
-        role: "user",
-        createdAt: new Date().toISOString(),
+        password,
+      });
+
+      console.log("Login Response:", response.data);
+
+      // 👉 if onboarding not completed
+      if (response.data.status === "onboarding") {
+          router.visit("/onboarding", {
+              data: {},
+              onSuccess: () => {
+                  alert(response.data.message); // Optional message
+              },
+          });
+          return;
       }
 
-      login(userData)
-      router.push("/user/dashboard")
+      // 👉 if login success
+      if (response.data.status === "success") {
+          router.visit("/dashboard", {
+              onSuccess: () => {
+                  alert(response.data.message);
+              }
+          });
+          return;
+      }
+
+
+      setError("Login failed. Please try again.");
     } catch (err) {
-      setError("Login failed. Please try again.")
+      console.error(err);
+      setError("Invalid email or password");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+
 
   return (
     <div className="w-full max-w-md">
       <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8">
         <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
-        <p className="text-slate-400 mb-6">Sign in to your HostMyShow account</p>
+        <p className="text-slate-400 mb-6">Sign in to your account</p>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+            {error}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-2">Email</label>
             <div className="relative">
@@ -60,11 +85,12 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-accent transition"
+                className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg"
               />
             </div>
           </div>
 
+          {/* Password */}
           <div>
             <label className="block text-sm font-medium mb-2">Password</label>
             <div className="relative">
@@ -74,15 +100,16 @@ export default function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-accent transition"
+                className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg"
               />
             </div>
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-accent hover:bg-accent/90 rounded-lg font-medium transition disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-2 bg-accent hover:bg-accent/90 rounded-lg font-medium flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -97,11 +124,11 @@ export default function LoginForm() {
 
         <p className="mt-6 text-center text-sm text-slate-400">
           Don't have an account?{" "}
-          <Link href="/register" className="text-accent hover:underline">
+          <Link href="/signup" className="text-accent hover:underline">
             Sign up
           </Link>
         </p>
       </div>
     </div>
-  )
+  );
 }

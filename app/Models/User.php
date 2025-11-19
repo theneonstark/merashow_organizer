@@ -2,47 +2,67 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
+        'phone',
         'email',
         'password',
+        'org_name',
+        'business_id',
+        'role_id',
+        'business_description',
+        'contact_person_name',
+        'contact_phone',
+        'document_verification',
+        'holder_name',
+        'account_number',
+        'ifsc_code',
+        'terms_accepted',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'document_verification' => 'boolean',
+        'terms_accepted' => 'boolean',
+    ];
+
+    // 🔗 Relationship with Business
+    public function business()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Business::class, 'business_id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function onboarding()
+{
+    return $this->hasOne(Onboarding::class);
+}
+
+
+    public function getCreatedAtAttribute($value)
+    {
+        return date('d M y - h:i A', strtotime($value));
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return date('d M y - h:i A', strtotime($value));
     }
 }
