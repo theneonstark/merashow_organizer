@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronRight, ChevronLeft, Check, Upload } from "lucide-react";
-import { onBoarding } from "@/libs/apis";
+import { onBoarding } from "@/lib/apis";
 import { router } from "@inertiajs/react";
 
 export default function OrganizerOnboarding() {

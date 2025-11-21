@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { Mail, Lock, Loader2 } from "lucide-react";
-import { Login } from "@/libs/apis"; // your API
+import { Login } from "@/lib/apis"; // your API
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");

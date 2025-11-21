@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -25,6 +26,19 @@ Route::group(['prefix' => 'auth'], function (){
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', [HomeController::class, 'index']);
+    Route::group(['prefix'=>'events'], function () {
+        Route::get('/', fn () => Inertia::render('events'));
+        Route::get('/new', [EventController::class, 'index']);
+        Route::post('/create', [EventController::class, 'store']);
+        Route::get('/list', [EventController::class, 'fetch']);
+        Route::post('/update/{id}', [EventController::class, 'update']);
+        Route::post('/toggle-status/{id}', [EventController::class, 'toggleStatus']);
+        Route::delete('/delete/{id}', [EventController::class, 'destroy']);
+    });
+
+    Route::get('/analytics', fn () => Inertia::render('analytics'));
+    Route::get('/payouts', fn () => Inertia::render('payouts'));
+    Route::get('/profile', fn () => Inertia::render('profile'));
 });
 
 // Route::get('/dashboard', function () {

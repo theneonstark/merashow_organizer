@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { Mail, Lock, User, Loader2 } from "lucide-react";
-import { register } from "@/libs/apis";
+import { register } from "@/lib/apis";
 
 export default function RegisterForm() {
   const [name, setName] = useState("");
